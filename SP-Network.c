@@ -18,13 +18,6 @@ uint32_t right_cycleshift32(uint32_t num, uint32_t shiftval) {
     return (num >> (shiftval % 32)) | (num << (32 - (shiftval % 32)));
 }
 
-void generate_round_keys(uint32_t masterkey, uint32_t *roundkeys, int rounds) {
-    for (int i = 0; i < rounds; i++) {
-        uint32_t shifted = right_cycleshift32(masterkey, i);
-        roundkeys[i]     = shifted ^ (i * 0x9E3779B9);
-    }
-}
-
 // ================ AUXILIARY FUNCTIONS ================
 
 
@@ -63,6 +56,13 @@ static const uint32_t P_block_reverse[] = {
     0  , 7  , 13 , 24 , 2  , 3  , 28 , 10 ,
     18 , 31 , 11 , 21 , 6  , 4  , 26 , 14 ,
 };
+
+void generate_round_keys(uint32_t masterkey, uint32_t *roundkeys, int rounds) {
+    for (int i = 0; i < rounds; i++) {
+        uint32_t shifted = right_cycleshift32(masterkey, i);
+        roundkeys[i]     = shifted ^ (i * 0x9E3779B9);
+    }
+}
 
 // substitution using table
 uint32_t do_S_block32(uint32_t bytes, const uint32_t *S_block) {
