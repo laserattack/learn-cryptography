@@ -189,9 +189,11 @@ uint32_t iv) {
 
 
 void usage_example() {
+    // data
     char text[16]        = "hello, sailor!!"; // 16/4=4 blocks
+
+    // parameters
     char encrypted[16], decrypted[16];
-    
     uint32_t key         = 0xCAFEBABE;
     uint32_t blockscount = sizeof(text)/4;
     uint32_t rounds      = 5;
