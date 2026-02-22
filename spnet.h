@@ -8,19 +8,10 @@ uint32_t SP_net32_dec(uint32_t block, uint32_t masterkey, uint32_t rounds);
 
 #ifdef SPNET_IMPL
 
-// ================ AUXILIARY FUNCTIONS ================
-
 // example: 00110100 -> [cyceshift8, shiftval=5] -> 00000001 | 1010000 -> 101001
 static uint32_t right_cycleshift32(uint32_t num, uint32_t shiftval) {
     return (num >> (shiftval % 32)) | (num << (32 - (shiftval % 32)));
 }
-
-// ================ AUXILIARY FUNCTIONS ================
-
-
-
-
-// ================ SP NETWORK ================
 
 // -> 9 -> 0
 // -> 10 -> 8
