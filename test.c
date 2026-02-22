@@ -6,10 +6,12 @@
 #define MODES_IMPL
 #define SPNET_IMPL
 #define FEISTEL_SPNET_IMPL
+#define DES_IMPL
 
 #include "modes.h"
 #include "ciphers/spnet.h"
 #include "ciphers/feistel_spnet.h"
+#include "ciphers/des.h"
 
 #define RUN_TEST(test_fn) \
     do { \
