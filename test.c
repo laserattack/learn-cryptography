@@ -8,8 +8,8 @@
 #define FEISTEL_SPNET_IMPL
 
 #include "modes.h"
-#include "spnet.h"
-#include "feistel_spnet.h"
+#include "ciphers/spnet.h"
+#include "ciphers/feistel_spnet.h"
 
 #define RUN_TEST(test_fn) \
     do { \
