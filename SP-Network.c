@@ -1,7 +1,7 @@
 /*
 INFO:
     WHAT IS IT            : simple SP-network
-    MODES                 : ECB, CBC
+    MODES                 : ECB, CBC, CFB
     BLOCK SIZE            : 32bits
     S BLOCK FRAGMENT SIZE : 4bits
 */
@@ -109,7 +109,7 @@ uint32_t SP_net32_block_enc(uint32_t block, uint32_t masterkey, uint32_t rounds)
     for (int r = 0; r < rounds; ++r) {
         state = SP_net32_round_enc(state, roundkeys[r]);
     }
-    
+
     // cleanup
     free(roundkeys);
     return state;
@@ -119,17 +119,19 @@ uint32_t SP_net32_block_dec(uint32_t block, uint32_t masterkey, uint32_t rounds)
     // generate round keys
     uint32_t *roundkeys = (uint32_t *)malloc(rounds*sizeof(uint32_t));
     generate_round_keys(masterkey, roundkeys, rounds);
-    
+
     uint32_t state = block;
 
     for (int r = rounds-1; r >= 0; --r) {
         state = SP_net32_round_dec(state, roundkeys[r]);
     }
-    
+
     // cleanup
     free(roundkeys);
     return state;
 }
+
+// ecb mode
 
 void SP_net32_enc_ecb(
 uint32_t *data_encrypted,
@@ -153,6 +155,8 @@ uint32_t rounds) {
     }
 }
 
+// cbc mode
+
 void SP_net32_enc_cbc(
 uint32_t *data_encrypted,
 uint32_t *data,
@@ -165,7 +169,7 @@ uint32_t iv) {
         uint32_t input = data[i] ^ prev;
         data_encrypted[i] = SP_net32_block_enc(input, masterkey, rounds);
         prev = data_encrypted[i];
-    }    
+    }
 }
 
 void SP_net32_dec_cbc(
@@ -180,7 +184,37 @@ uint32_t iv) {
         uint32_t decrypted = SP_net32_block_dec(data_encrypted[i], masterkey, rounds);
         data_decrypted[i] = decrypted ^ prev;
         prev = data_encrypted[i];
-    }       
+    }
+}
+
+// cfb mode
+
+void SP_net32_enc_cfb(
+uint32_t *data_encrypted,
+uint32_t *data,
+uint32_t blockscount,
+uint32_t masterkey,
+uint32_t rounds,
+uint32_t iv) {
+    uint32_t prev = iv;
+    for (int i = 0; i < blockscount; ++i) {
+        data_encrypted[i] = data[i] ^ SP_net32_block_enc(prev, masterkey, rounds);
+        prev = data_encrypted[i];
+    }
+}
+
+void SP_net32_dec_cfb(
+uint32_t *data_decrypted,
+uint32_t *data_encrypted,
+uint32_t blockscount,
+uint32_t masterkey,
+uint32_t rounds,
+uint32_t iv) {
+    uint32_t prev = iv;
+    for (int i = 0; i < blockscount; ++i) {
+        data_decrypted[i] = data_encrypted[i] ^ SP_net32_block_enc(prev, masterkey, rounds);
+        prev = data_encrypted[i];
+    }
 }
 
 // ================ SP NETWORK ================
@@ -197,6 +231,7 @@ void usage_example() {
     uint32_t key         = 0xCAFEBABE;
     uint32_t blockscount = sizeof(text)/4;
     uint32_t rounds      = 5;
+    uint32_t iv          = 0xDEADBEEF;
 
     // ecb
     SP_net32_enc_ecb((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds);
@@ -204,9 +239,13 @@ void usage_example() {
     printf("%s\n", text); // -> hello, sailor!!
 
     // cbc
-    uint32_t iv = 0xDEADBEEF;
     SP_net32_enc_cbc((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv);
     SP_net32_dec_cbc((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv);
+    printf("%s\n", text); // -> hello, sailor!!
+
+    // cfb
+    SP_net32_enc_cfb((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv);
+    SP_net32_dec_cfb((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv);
     printf("%s\n", text); // -> hello, sailor!!
 }
 
