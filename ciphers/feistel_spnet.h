@@ -64,7 +64,7 @@ static uint16_t feistel_SP_net32_SP_net16_round_enc(uint16_t block, uint16_t rou
 
 // this substitution = tau = involutive substitution
 static uint32_t tau(uint32_t block) {
-    uint16_t left = block >> 16;
+    uint16_t left  = block >> 16;
     uint16_t right = block & 0xFFFF;
     return ((uint32_t)right << 16) | left;
 }
@@ -74,8 +74,8 @@ static uint32_t feistel_SP_net32_round_encdec(uint32_t block, uint16_t roundkey)
     uint16_t left  = block >> 16;
     uint16_t right = block & 0xFFFF;
     // in this case i use SP_net16_round_enc substitution, but there are no restrictions, you can use any function
-    uint32_t res = left ^ feistel_SP_net32_SP_net16_round_enc(right, roundkey);
-    res |= ((uint32_t)right << 16);
+    uint32_t res   = left ^ feistel_SP_net32_SP_net16_round_enc(right, roundkey);
+    res            |= ((uint32_t)right << 16);
     return res;
 }
 
