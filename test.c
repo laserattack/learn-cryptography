@@ -27,8 +27,25 @@ void test_des() {
     // 1 block
     assert(des_dec(des_enc(0xCAFECAFECAFECAFE, key, rounds), key, rounds) == 0xCAFECAFECAFECAFE);
 
-    char text[16]   = "hello, sailor!!"; // 16/4=4 blocks
+    char text[16]        = "hello, sailor!!"; // 16/8=2 blocks
     char encrypted[16], decrypted[16];
+    uint32_t iv          = 0xDEADBEEF;
+    uint32_t blockscount = sizeof(text)/8;
+    
+    // ecb
+    ecb_enc64((uint64_t *)encrypted, (uint64_t *)text, blockscount, key, rounds, des_enc);
+    ecb_dec64((uint64_t *)decrypted, (uint64_t *)encrypted, blockscount, key, rounds, des_dec);
+    assert(!strcmp(text, decrypted) && "des ecb failed");
+
+    // cbc
+    cbc_enc64((uint64_t *)encrypted, (uint64_t *)text, blockscount, key, rounds, iv, des_enc);
+    cbc_dec64((uint64_t *)decrypted, (uint64_t *)encrypted, blockscount, key, rounds, iv, des_dec);
+    assert(!strcmp(text, decrypted) && "des cbc failed");
+
+    // cfb
+    cfb_enc64((uint64_t *)encrypted, (uint64_t *)text, blockscount, key, rounds, iv, des_enc);
+    cfb_dec64((uint64_t *)decrypted, (uint64_t *)encrypted, blockscount, key, rounds, iv, des_enc);
+    assert(!strcmp(text, decrypted) && "des cfb failed");
 }
     
 void test_feistel_spnet32() {
@@ -43,18 +60,18 @@ void test_feistel_spnet32() {
     uint32_t iv          = 0xDEADBEEF;
 
     // ecb
-    ecb_enc((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, feistel_SP_net32_enc);
-    ecb_dec((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, feistel_SP_net32_dec);
+    ecb_enc32((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, feistel_SP_net32_enc);
+    ecb_dec32((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, feistel_SP_net32_dec);
     assert(!strcmp(text, decrypted) && "feistel spnet32 ecb failed");
 
     // cbc
-    cbc_enc((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, feistel_SP_net32_enc);
-    cbc_dec((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, feistel_SP_net32_dec);
+    cbc_enc32((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, feistel_SP_net32_enc);
+    cbc_dec32((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, feistel_SP_net32_dec);
     assert(!strcmp(text, decrypted) && "feistel spnet32 cbc failed");
 
     // cfb
-    cfb_enc((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, feistel_SP_net32_enc);
-    cfb_dec((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, feistel_SP_net32_enc);
+    cfb_enc32((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, feistel_SP_net32_enc);
+    cfb_dec32((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, feistel_SP_net32_enc);
     assert(!strcmp(text, decrypted) && "feistel spnet32 cfb failed");
 }
 
@@ -70,18 +87,18 @@ void test_spnet32() {
     uint32_t iv          = 0xDEADBEEF;
 
     // ecb
-    ecb_enc((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, SP_net32_enc);
-    ecb_dec((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, SP_net32_dec);
+    ecb_enc32((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, SP_net32_enc);
+    ecb_dec32((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, SP_net32_dec);
     assert(!strcmp(text, decrypted) && "spnet32 ecb failed");
 
     // cbc
-    cbc_enc((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, SP_net32_enc);
-    cbc_dec((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, SP_net32_dec);
+    cbc_enc32((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, SP_net32_enc);
+    cbc_dec32((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, SP_net32_dec);
     assert(!strcmp(text, decrypted) && "spnet32 cbc failed");
 
     // cfb
-    cfb_enc((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, SP_net32_enc);
-    cfb_dec((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, SP_net32_enc);
+    cfb_enc32((uint32_t *)encrypted, (uint32_t *)text, blockscount, key, rounds, iv, SP_net32_enc);
+    cfb_dec32((uint32_t *)decrypted, (uint32_t *)encrypted, blockscount, key, rounds, iv, SP_net32_enc);
     assert(!strcmp(text, decrypted) && "spnet32 cfb failed");
 }
 
