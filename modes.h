@@ -66,7 +66,7 @@ uint32_t blockscount,
 uint32_t masterkey,
 uint32_t rounds,
 cipher_func_t enc) {
-    for (int i = 0; i < blockscount; ++i) {
+    for (uint32_t i = 0; i < blockscount; ++i) {
         data_encrypted[i] = enc(data[i], masterkey, rounds);
     }
 }
@@ -78,7 +78,7 @@ uint32_t blockscount,
 uint32_t masterkey,
 uint32_t rounds,
 cipher_func_t dec) {
-    for (int i = 0; i < blockscount; ++i) {
+    for (uint32_t i = 0; i < blockscount; ++i) {
         data_decrypted[i] = dec(data_encrypted[i], masterkey, rounds);
     }
 }
@@ -94,7 +94,7 @@ uint32_t rounds,
 uint32_t iv,
 cipher_func_t enc) {
     uint32_t prev = iv;
-    for (int i = 0; i < blockscount; ++i) {
+    for (uint32_t i = 0; i < blockscount; ++i) {
         uint32_t input = data[i] ^ prev;
         data_encrypted[i] = enc(input, masterkey, rounds);
         prev = data_encrypted[i];
@@ -110,7 +110,7 @@ uint32_t rounds,
 uint32_t iv,
 cipher_func_t dec) {
     uint32_t prev = iv;
-    for (int i = 0; i < blockscount; ++i) {
+    for (uint32_t i = 0; i < blockscount; ++i) {
         uint32_t decrypted = dec(data_encrypted[i], masterkey, rounds);
         data_decrypted[i] = decrypted ^ prev;
         prev = data_encrypted[i];
@@ -128,7 +128,7 @@ uint32_t rounds,
 uint32_t iv,
 cipher_func_t enc) {
     uint32_t prev = iv;
-    for (int i = 0; i < blockscount; ++i) {
+    for (uint32_t i = 0; i < blockscount; ++i) {
         data_encrypted[i] = data[i] ^ enc(prev, masterkey, rounds);
         prev = data_encrypted[i];
     }
@@ -143,7 +143,7 @@ uint32_t rounds,
 uint32_t iv,
 cipher_func_t enc) { // yes, enc! not dec
     uint32_t prev = iv;
-    for (int i = 0; i < blockscount; ++i) {
+    for (uint32_t i = 0; i < blockscount; ++i) {
         data_decrypted[i] = data_encrypted[i] ^ enc(prev, masterkey, rounds);
         prev = data_encrypted[i];
     }
