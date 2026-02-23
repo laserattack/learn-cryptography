@@ -95,7 +95,7 @@ uint32_t SP_net32_enc(uint32_t block, uint32_t masterkey, uint32_t rounds) {
     SP_net32_generate_round_keys(masterkey, roundkeys, rounds);
 
     uint32_t state = block;
-    for (int r = 0; r < rounds; ++r) {
+    for (uint32_t r = 0; r < rounds; ++r) {
         state = SP_net32_round_enc(state, roundkeys[r]);
     }
 

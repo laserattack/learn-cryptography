@@ -20,6 +20,17 @@
         fprintf(stderr, "OK\n"); \
     } while(0)
 
+void test_des() {
+    uint64_t key    = 0xDEADBABEDEADBABE;
+    uint32_t rounds = 16;
+
+    // 1 block
+    assert(des_dec(des_enc(0xCAFECAFECAFECAFE, key, rounds), key, rounds) == 0xCAFECAFECAFECAFE);
+
+    char text[16]   = "hello, sailor!!"; // 16/4=4 blocks
+    char encrypted[16], decrypted[16];
+}
+    
 void test_feistel_spnet32() {
     // data
     char text[16]        = "hello, sailor!!"; // 16/4=4 blocks
@@ -77,5 +88,6 @@ void test_spnet32() {
 int main() {
     RUN_TEST(test_spnet32);
     RUN_TEST(test_feistel_spnet32);
+    RUN_TEST(test_des);
     return 0;
 }
