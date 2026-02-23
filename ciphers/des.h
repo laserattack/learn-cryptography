@@ -41,7 +41,7 @@ static const uint64_t des_final_permutation_table[64] = {
 
 static uint64_t des_do_permutation(uint64_t bits, uint64_t bits_count, uint64_t input_width, const uint64_t *P_block) {
     uint64_t res = 0;
-    for (int i = 0; i < bits_count; ++i) {
+    for (uint64_t i = 0; i < bits_count; ++i) {
         int src_bit  = (P_block[i] - 1) % input_width;
         uint64_t bit = (bits >> src_bit) & 1;
         res          |= (bit << i);
@@ -49,7 +49,6 @@ static uint64_t des_do_permutation(uint64_t bits, uint64_t bits_count, uint64_t 
     return res;
 }
 
-// TODO(20260223T171420): Перевести на англ когда все закончу
 static void des_generate_round_keys(uint64_t masterkey, uint64_t *roundkeys, uint32_t rounds) {
     // tables ausing in generation round keys from standard
     static const uint64_t des_key_permutation_table[56] = {
@@ -74,35 +73,35 @@ static void des_generate_round_keys(uint64_t masterkey, uint64_t *roundkeys, uin
         1 , 2 , 2 , 2 , 2 , 2 , 2 , 1 ,
     };
 
-    /* 1. Прилетает ключ 56 бит (там в десе он в контейнере из 64 бит где каждый 8-й бит - бит четности.
-    Это чтобы проверять были ли помехи, типо контроль целостности. Но я сделаю просто 56 младших бит в 64битном контейнере) */    
+    /* 1. A 56-bit key arrives (in DES it's stored in a 64-bit container where every 8th bit is a parity bit.
+    This is for error detection, like integrity control. But I'll just use the lower 56 bits in a 64-bit container) */    
     masterkey &= DES_MASK56;
 
-    // 2. Подвергается перестановке бит
+    // 2. Undergoes bit permutation
     masterkey = des_do_permutation(masterkey, 56, 56, des_key_permutation_table);
 
-    // 3. Делится на 2 половины по 28 бит
+    // 3. Divided into 2 halves of 28 bits each
     uint64_t right = masterkey         & DES_MASK28;
     uint64_t left  = (masterkey >> 28) & DES_MASK28;
 
-    for (int i = 0; i < rounds; ++i) {
-        // 4. Для каждого из 16 раундов половины сдвигаются циклически влево на 1 или 2 бита в зависимсоти от номера раунда
+    for (uint64_t i = 0; i < rounds; ++i) {
+        // 4. For each of the 16 rounds, the halves are shifted cyclically left by 1 or 2 bits depending on the round number
         uint64_t shift = des_key_shifts[i];
         left           = ((left << shift)  | (left >> (28 - shift)))  & DES_MASK28;
         right          = ((right << shift) | (right >> (28 - shift))) & DES_MASK28;
 
-        // 5. После сдвига соответствующего номеру раунда (прошлый шаг) половинки склеиваются обратно в 56 бит
+        // 5. After shifting for the corresponding round number (previous step), the halves are glued back to 56 bits
         uint64_t res = (left << 28) | right;
 
-        // 6. Результат подвергается сужающей фиксированной подстановке и получается 48 бит
+        // 6. The result is subjected to a narrowing fixed substitution (independent of the key) and 48 bits are obtained
         res = des_do_permutation(res, 48, 56, des_key_compression_table) & DES_MASK48;
         roundkeys[i] = res;
     }
 }
 
 static uint32_t _des_round_encdec(uint32_t block, uint64_t roundkey) {
-    // 1. На вход тактовой функции поступает полублок 32 бита
-    // 2. К нему рименяется фиксированная расширяющая подстановка которая из него делает 48 битовый результат
+    // 1. The round function receives a 32-bit half-block
+    // 2. A fixed expansion permutation is applied to it, resulting in a 48-bit value
     static const uint64_t des_expansion_table[48] = {
         32, 1 , 2 , 3 , 4 , 5 ,
         4 , 5 , 6 , 7 , 8 , 9 ,
@@ -116,11 +115,13 @@ static uint32_t _des_round_encdec(uint32_t block, uint64_t roundkey) {
     uint64_t state = block;
     state          = des_do_permutation(state, 48, 32, des_expansion_table) & DES_MASK48;
 
-    // 3. Результат прошлого шага ксорится с тактовым ключом 48 битным
+    // 3. The result from the previous step is XORed with the 48-bit round key
     state ^= roundkey;
 
-    // 4. Полученное слово из 48 бит разбивается на 8 фрагментов по 6 бит, которые проходят через сужающие S блоки и преобразуются в слова по 4 бита
-    // Сужающие S-блоки из стандарта
+    /* 4. The resulting 48-bit word is split into 8 fragments of 6 bits each,
+    which pass through narrowing S-boxes and are transformed into 4-bit words
+    
+    Narrowing S-boxes from the standard */
     static const uint8_t des_s_blocks[8][4][16] = {
         {
             {14, 4 , 13, 1 , 2 , 15, 11, 8 , 3 , 10, 6 , 12, 5 , 9 , 0 , 7 },
@@ -180,8 +181,7 @@ static uint32_t _des_round_encdec(uint32_t block, uint64_t roundkey) {
         res              |= (des_s_blocks[i][row][col] << (i * 4));
     }
 
-    // 5. Далее следует фиксированный P-block (просто перемешивание)
-    // TODO(20260223T181633): Поменять в алгоритме
+    // 5. Next follows a fixed P-block (just permutation)
     static const uint64_t des_p_block[32] = {
         16, 7 , 20, 21,
         29, 12, 28, 17,
@@ -194,7 +194,7 @@ static uint32_t _des_round_encdec(uint32_t block, uint64_t roundkey) {
     };
     res = des_do_permutation(res, 32, 32, des_p_block);
 
-    // 6. Результат передается на следующий такт
+    // 6. The result is passed to the next round
     return res;
 }
 

@@ -29,7 +29,7 @@ void test_des() {
 
     char text[16]        = "hello, sailor!!"; // 16/8=2 blocks
     char encrypted[16], decrypted[16];
-    uint32_t iv          = 0xDEADBEEF;
+    uint64_t iv          = 0x1337133713371337;
     uint32_t blockscount = sizeof(text)/8;
     
     // ecb
