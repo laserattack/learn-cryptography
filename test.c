@@ -25,10 +25,10 @@ void test_des() {
     uint32_t rounds = 16;
 
     // 1 block
-    assert(des_dec(des_enc(0xCAFECAFECAFECAFE, key, rounds), key, rounds) == 0xCAFECAFECAFECAFE);
+    assert(des_dec(des_enc(0xCAFECAFECAFECAFE, key, rounds), key, rounds) == 0xCAFECAFECAFECAFE && "des 1 block failed");
 
-    char text[16]        = "hello, sailor!!"; // 16/8=2 blocks
-    char encrypted[16], decrypted[16];
+    char text[32]        = "hello, sailor!!hello, sailor!!"; // 32/8=4 blocks
+    char encrypted[32], decrypted[32];
     uint64_t iv          = 0x1337133713371337;
     uint32_t blockscount = sizeof(text)/8;
     
