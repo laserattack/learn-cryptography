@@ -27,7 +27,7 @@ static const uint64_t des_initial_permutation_table[64] = {
     63, 55, 47, 39, 31, 23, 15, 7 ,
 };
 
-// Inverse permutation
+// Final permutation
 static const uint64_t des_final_permutation_table[64] = {
     40, 8 , 48, 16, 56, 24, 64, 32,
     39, 7 , 47, 15, 55, 23, 63, 31,
@@ -50,7 +50,7 @@ static uint64_t des_do_permutation(uint64_t bits, uint64_t bits_count, uint64_t 
 }
 
 static void des_generate_round_keys(uint64_t masterkey, uint64_t *roundkeys, uint32_t rounds) {
-    // tables ausing in generation round keys from standard
+    // tables using in generation round keys from standard
     static const uint64_t des_key_permutation_table[56] = {
         57, 49, 41, 33, 25, 17, 9 , 1 ,
         58, 50, 42, 34, 26, 18, 10, 2 ,
